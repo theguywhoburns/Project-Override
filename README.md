@@ -1,6 +1,6 @@
 # Project -> Override
 ### An extensive project configuration tool
-Welcome to the RainWorld `Project -> Override`! This tool is designed specifically to simplify the project setup and configuration process. Define project directives using the guidelines below.
+Welcome to the `Project -> Override`! This tool is designed specifically to simplify the project setup and configuration process. Define project directives using the guidelines below.
 
 ### WARNING: For now this `Project -> Override` only supports RainWorld projects
 
