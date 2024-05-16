@@ -1,6 +1,7 @@
 # Project -> Override
 ### An extensive project configuration tool
-Welcome to the `Project -> Override`! This tool is designed specifically to simplify the project setup and configuration process. Define project directives using the guidelines below.
+Welcome to the `Project -> Override`! This tool is designed specifically to simplify the project setup and configuration process. 
+Right now it uses CMake-like `Directives` to define project info(will have a full blown GUI in the future)
 
 ### WARNING: For now this `Project -> Override` only supports RainWorld projects
 
