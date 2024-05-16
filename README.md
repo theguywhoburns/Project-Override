@@ -2,7 +2,7 @@
 ### An extensive project configuration tool
 Welcome to the RainWorld `Project -> Override` tool! This tool is designed specifically to simplify the project setup and configuration process. Define project directives using the guidelines below.
 
-###WARNING: For now this tool only supports RainWorld projects
+### WARNING: For now this tool only supports RainWorld projects
 
 ## Directives Available
 - `CONFIG_VERSION(version)`: Set the configuration version.
