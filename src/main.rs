@@ -1,5 +1,5 @@
 use regex::Regex as Regex;
-use std::{env, fs::File, io::Read, io::Write};
+use std::{any::Any, collections::HashMap, env, fs::{self, File}, io::Write, iter::Enumerate, vec};
 
 #[derive(Debug)]
 struct Args {
@@ -108,107 +108,253 @@ pub enum Token {
 	EndOfFile,	//EOF
 	Identifier(String), //Everything else
 	Number(i64),
-	FloatNumber(f64),
 	MaxTokens   //NOTE: This is for enum size, it's not a limit to tokens or a token itself
 }
 
-pub fn lex(source: &Vec<u8>) -> Vec<Token> {
-	const DELIMITERS : &str = "^+-=!@$%&|~@(){}[]'\".,:;* \n\t\r /\\";
-	let mut ret: Vec<Token> = Vec::with_capacity(source.len());
+impl Token {
+	pub fn to_string(&self) -> String {
+		format!("{:?}", self)
+	}
+	pub fn len(&self) -> usize {
+		match self {
+			Token::Comment(str) => str.len() + 2,
+			Token::Identifier(str) => str.len(),
+			Token::Number(num) => num.to_string().len(),
+			Token::StartMultiLineComment | Token::EndMultiLineComment => 2,
+			_ => 1
+		}
+	}
+}
+
+fn message(ast: &Vec<AST>) -> Result<AST, String> {
+	for ast_ in ast {
+		match ast_ {
+			AST::STRING(s) => println!("{}", s),
+			AST::NUMBER(n) => println!("{}", n),
+			_ => return Err("Unknown AST arg".to_string())
+		}
+	}
+	Ok( AST::NOTHING )
+}
+
+
+
+#[derive(Debug)]
+enum AST {
+	STATEMENT(String, Vec<AST>, fn(&Vec<AST>) -> Result<AST, String> ),
+	STRING(String),
+	NUMBER(i32),
+	NOTHING,
+	END
+}
+
+enum CompilerError {
+	Syntax(usize, usize, String),
+}
+
+impl CompilerError {
+	pub fn new (line: usize, col: usize, msg: String) -> CompilerError {
+		CompilerError::Syntax(line, col, msg)
+	}
+}
+
+type StatementFPtr = fn(&Vec<AST>) -> Result<AST, String>;
+struct StatementDef {
+	pub fn_ptr: StatementFPtr,
+	pub arg_amount: usize,
+	pub is_array_statement: bool,
+	pub return_type: AST	
+}
+
+impl StatementDef {
+	pub fn new (fn_ptr: StatementFPtr, arg_amount: usize, is_array_statement: bool, return_type: AST) -> StatementDef {
+		StatementDef {
+			fn_ptr,
+			arg_amount,
+			is_array_statement,
+			return_type
+		}
+	}
+}
+
+struct Compiler {
+	statement_map: HashMap<String, StatementDef>
+}
+
+impl Compiler {
+	pub fn new() -> Compiler {
+		Compiler {
+			statement_map: HashMap::from([
+				("message".to_string(), StatementDef::new(message, 1, false, AST::NOTHING)),
+				
+			]),
+		}
+	}
+	pub fn lex(&self, src: &str) -> Vec<Token> {
+		const DELIMITERS : &str = "^+-=!@$%&|~@(){}[]'\".,:;* \n\t\r /\\";
+	let mut ret: Vec<Token> = Vec::with_capacity(src.len());
+	let source = src.as_bytes();
 	let mut i = 0;
 	while i < source.len() {
-		
-		match source[i] {
-			b'^' => ret.push(Token::Power),
-			b'+' => ret.push(Token::Plus),
-			b'=' => ret.push(Token::Equals),
-			b'-' => ret.push(Token::Minus),
-			b'!' => ret.push(Token::Not),
-			b'@' => ret.push(Token::At),
-			b'$' => ret.push(Token::Dollar),
-			b'%' => ret.push(Token::Percent),
-			b'&' => ret.push(Token::And),
-			b'|' => ret.push(Token::Or),
-			b'~' => ret.push(Token::Probably),
-			b'#' => ret.push(Token::Hashtag),
-			b'(' => ret.push(Token::Oparen),
-			b')' => ret.push(Token::Cparen),
-			b'{' => ret.push(Token::Ocurly),
-			b'}' => ret.push(Token::Ccurly),
-			b'[' => ret.push(Token::Osquare),
-			b']' => ret.push(Token::Csquare),
-			b'\'' => ret.push(Token::Quote),
-			b'"' => ret.push(Token::DoubleQuote),
-			b'.' => ret.push(Token::Dot),
-			b',' => ret.push(Token::Comma),
-			b':' => ret.push(Token::Colon),
-			b';' => ret.push(Token::Semicolon),
-			b'*' => {
-				if i+1 < source.len() && source[i+1] == b'/' {
-					ret.push(Token::EndMultiLineComment);
-					i += 1;
-				} else {
-					ret.push(Token::Star);
-				}
-			}
-			b' ' => ret.push(Token::Whitespace),
-			b'\n' => ret.push(Token::Newline),
-			b'\r' => {
-				if i+1 < source.len() && source[i+1] == b'\n' {
-					ret.push(Token::Newline);
-					i += 1;
-				} else {
-					ret.push(Token::Newline);
-				}
-			}
-			b'\t' => ret.push(Token::Tab),
-			b'/' => {
-				if i+1 < source.len() && source[i+1] == b'*' {
-					ret.push(Token::StartMultiLineComment);
-					i += 1;
-				} else if i+1 < source.len() && source[i+1] == b'/' {
-					let mut j = i+2;
-					while j < source.len() && source[j] != b'\n' && source[j] != b'\r' {
-						j += 1;
+		match source[i] as u8 {
+				b'^' => ret.push(Token::Power),
+				b'+' => ret.push(Token::Plus),
+				b'=' => ret.push(Token::Equals),
+				b'-' => ret.push(Token::Minus),
+				b'!' => ret.push(Token::Not),
+				b'@' => ret.push(Token::At),
+				b'$' => ret.push(Token::Dollar),
+				b'%' => ret.push(Token::Percent),
+				b'&' => ret.push(Token::And),
+				b'|' => ret.push(Token::Or),
+				b'~' => ret.push(Token::Probably),
+				b'#' => ret.push(Token::Hashtag),
+				b'(' => ret.push(Token::Oparen),
+				b')' => ret.push(Token::Cparen),
+				b'{' => ret.push(Token::Ocurly),
+				b'}' => ret.push(Token::Ccurly),
+				b'[' => ret.push(Token::Osquare),
+				b']' => ret.push(Token::Csquare),
+				b'\'' => ret.push(Token::Quote),
+				b'"' => ret.push(Token::DoubleQuote),
+				b'.' => ret.push(Token::Dot),
+				b',' => ret.push(Token::Comma),
+				b':' => ret.push(Token::Colon),
+				b';' => ret.push(Token::Semicolon),
+				b'*' => {
+					if i+1 < source.len() && source[i+1] == b'/' {
+						ret.push(Token::EndMultiLineComment);
+						i += 1;
+					} else {
+						ret.push(Token::Star);
 					}
-					ret.push(Token::Comment(std::str::from_utf8(&source[i+2..j]).unwrap().to_string()));
-					i = j;
-				} else {
-					ret.push(Token::Slash);
 				}
-			}
-			b'\\' => ret.push(Token::BackSlash),
-			_ => {
-				let mut end = i;
-				if source[i].is_ascii_digit() {
-					let mut end = i+1;
-					while end < source.len() && source[end].is_ascii_digit() {
-						end += 1;
+				b' ' => ret.push(Token::Whitespace),
+				b'\n' => ret.push(Token::Newline),
+				b'\r' => {
+					if i+1 < source.len() && source[i+1] == b'\n' {
+						ret.push(Token::Newline);
+						i += 1;
+					} else {
+						ret.push(Token::Newline);
 					}
-					if end < source.len() && !DELIMITERS.contains(source[end] as char) {
-						while end < source.len() && !DELIMITERS.contains(source[end] as char) {
+				}
+				b'\t' => ret.push(Token::Tab),
+				b'/' => {
+					if i+1 < source.len() && source[i+1] == b'*' {
+						ret.push(Token::StartMultiLineComment);
+						i += 1;
+					} else if i+1 < source.len() && source[i+1] == b'/' {
+						let mut j = i+2;
+						while j < source.len() && (source[j] != b'\n' && source[j] != b'\r' && source[j+1] != b'*' && source[j+1] != b'/') {
+							j += 1;
+						}
+						ret.push(Token::Comment(std::str::from_utf8(&source[i+2..j]).unwrap().to_string()));
+						i = j;
+					} else {
+						ret.push(Token::Slash);
+					}
+				}
+				b'\\' => ret.push(Token::BackSlash),
+				_ => {
+					let mut end = i;
+					if source[i].is_ascii_digit() {
+						let mut end = i+1;
+						while end < source.len() && source[end].is_ascii_digit() {
+							end += 1;
+						}
+						if end < source.len() && !DELIMITERS.contains(source[end] as char) {
+							while end < source.len() && !DELIMITERS.contains(source[end] as char) {
+								end += 1;
+							}
+							ret.push(Token::Identifier(std::str::from_utf8(&source[i..end]).unwrap().to_string()));
+						} else {
+							ret.push(Token::Number(std::str::from_utf8(&source[i..end]).unwrap().parse().unwrap()));
+						}
+						i = end - 1;
+					} else {
+						while end < source.len() && !DELIMITERS.contains(source[end] as char) && source[end] != b' ' {
 							end += 1;
 						}
 						ret.push(Token::Identifier(std::str::from_utf8(&source[i..end]).unwrap().to_string()));
-					} else {
-						ret.push(Token::Number(std::str::from_utf8(&source[i..end]).unwrap().parse().unwrap()));
+						i = end - 1;
 					}
-					i = end - 1;
-				} else {
-					while end < source.len() && !DELIMITERS.contains(source[end] as char) && source[end] != b' ' {
-						end += 1;
-					}
-					ret.push(Token::Identifier(std::str::from_utf8(&source[i..end]).unwrap().to_string()));
-					i = end - 1;
 				}
 			}
+			i += 1;
 		}
-		i += 1;
+		ret.push(Token::EndOfFile);
+		ret
 	}
-	ret.push(Token::EndOfFile);
-	ret
-}
 
+	pub fn compile(&self, tokens: Vec<Token>) -> Result<Vec<AST>, Vec<CompilerError>> {
+		let mut ret: Vec<AST> = Vec::new();
+		let mut errors: Vec<CompilerError> = Vec::new();
+		let mut line = 0;
+		let mut col = 0;
+		for (mut i, token) in tokens.iter().enumerate() {
+		match token {
+			Token::Comment(comment) => {
+				col += comment.len()
+			}
+			Token::Newline => {
+				line += 1;
+				col = 0;
+			}
+			Token::Whitespace | Token::Tab => {
+				col += 1;
+			}
+			Token::StartMultiLineComment => {
+				col +=2;
+				while i < tokens.len() && tokens[i] != Token::EndMultiLineComment {
+					i+=1;
+					let mut found_end = false;
+					match tokens[i] {
+						Token::StartMultiLineComment => {
+							col += 2;
+						}
+						Token::Newline => {
+							line += 1;
+							col = 0;
+						}
+						Token::Comment(val) | Token::Identifier(val) => {
+							col += val.len()
+						}
+						Token::And | Token::At | Token::BackSlash | Token::Comma | Token::Colon | Token::Dot | Token::Equals | Token::Minus | Token::Not | Token::Or | Token::Percent | Token::Power | Token::Quote | Token::Star | Token::Tab | Token::Whitespace => {
+							col += 1
+						}
+						Token::EndMultiLineComment => {
+							col += 2;
+							found_end = true;
+						}
+						_ => {
+							errors.push(CompilerError::new(line, col, "Unhandled token".to_string()));
+							col += tokens[i].len();
+						}
+					}
+					if(found_end) {
+						break;
+					}
+					}
+				}
+			Token::Identifier(val) => {
+				col += val.len();
+				if self.statement_map.contains_key(val) {
+
+				}
+			}
+			_ => {
+				errors.push(CompilerError::new(line, col, "Unexpected token".to_string()));
+			}
+			}
+		}
+		if errors.is_empty()  {
+			Result::Ok(ret)
+		} else {
+			Result::Err(errors)
+		}
+	}
+}
 fn main() {
     let args: Vec<String> = env::args().collect();
     Args::parse(&args);
@@ -216,20 +362,25 @@ fn main() {
 		println!("Help");
 		return;
 	}
-	let config_file_path = Args::config_file_path().unwrap_or("ProjectOverride.txt".to_string());
-	let mut config_file = match File::open(config_file_path) {
-    	Ok(file) => file,
-    	Err(error) => panic!("Failed to open config file: {}", error),
-	};
-	let mut config_content = String::new();
 	
-	config_file.read_to_string(&mut config_content).expect("Failed to read config file");
-
-	let tokens = lex(&config_content.into_bytes());
+	let compiler = Compiler::new();
+	let source = fs::read_to_string(&Args::config_file_path().unwrap_or("ProjectOverride.txt".to_string())).unwrap();
+	let tokens = compiler.lex(&source);
 	if Args::debug() {
 	let mut file = File::create("tokens.txt").unwrap();
-		for token in &tokens {
+		for token in tokens {
 	    	writeln!(file, "{:?}", token).unwrap();
 		}
+	}
+	let ast: AST = compiler.compile(tokens);
+	match ast {
+		AST::STATEMENT(ref _name, ref args, f) => {
+			let result = f(&args);
+			match result {
+				Ok(result) => println!("AST: {:?}\nRESULT: {:?}", &ast, result),
+				Err(e) => println!("Error occurred during compilation: {:?}", e),
+			}
+		}
+		_ => println!("Not a statement"),
 	}
 }
