@@ -148,6 +148,7 @@ enum AST {
 	END
 }
 
+#[derive(Debug)]
 enum CompilerError {
 	Syntax(usize, usize, String),
 }
@@ -186,7 +187,7 @@ impl Compiler {
 		Compiler {
 			statement_map: HashMap::from([
 				("message".to_string(), StatementDef::new(message, 1, false, AST::NOTHING)),
-				
+
 			]),
 		}
 	}
@@ -368,19 +369,28 @@ fn main() {
 	let tokens = compiler.lex(&source);
 	if Args::debug() {
 	let mut file = File::create("tokens.txt").unwrap();
-		for token in tokens {
+		for token in &tokens {
 	    	writeln!(file, "{:?}", token).unwrap();
 		}
 	}
-	let ast: AST = compiler.compile(tokens);
-	match ast {
-		AST::STATEMENT(ref _name, ref args, f) => {
-			let result = f(&args);
-			match result {
-				Ok(result) => println!("AST: {:?}\nRESULT: {:?}", &ast, result),
-				Err(e) => println!("Error occurred during compilation: {:?}", e),
+	let asts: Result<Vec<AST>, Vec<CompilerError>> = compiler.compile(tokens);
+	match asts {
+		Ok(asts) => {
+			for ast in asts {
+				match ast {
+					AST::STATEMENT(_, args, fn_ptr) => {
+						fn_ptr(&args).unwrap();
+					}
+					_ => {
+						println!("What the fuck? {:?}", ast);
+					}
+				}
 			}
 		}
-		_ => println!("Not a statement"),
+		Err(errors) => {
+			for error in errors {
+				println!("{:?}", error);
+			}
+		}
 	}
 }
