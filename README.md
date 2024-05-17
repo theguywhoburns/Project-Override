@@ -14,7 +14,7 @@ Right now it uses CMake-like `Directives` to define project info(will have a ful
 - `MESSAGE(message)`: Display a message in the project console.
 - `DIRECTORY(create, path)`: Create a directory within the project.
 - `FILE_COPY(copy, path_to_copy_from, path_to_paste)`: Copy a file to a specified location within the project.
-- `FILE_CREATE(create, path)`: Create a file within the project.
+- `FILE_CREATE(create, data)`: Create a file within the project.
 - `DESCRIPTION(description)`: Provide a description for the project configuration.
 - `DEPENDENCYID[id1, id2, ...]`: Set RainWorld project dependency IDs.
 - `DEPENDENCYNAME[name1, name2, ...]`: Set RainWorld project dependency names.

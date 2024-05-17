@@ -9,13 +9,13 @@
 
 * `CONFIG_VERSION(version)`: Установить версию конфигурации.
 * `RW_DIR(path)`: Установить директорию игры RainWorld.
-* `INPUT(msg_to_display)`: Создать поле ввода для создания проекта.
+* `INPUT(msg_to_display)`: Создать поле ввода для получения значения при инициализации.
 * `DEFAULT(directive_name)`: Установить значение по умолчанию для директивы.
 * `BOOL_INPUT(msg_to_display)`: Создать булево поле ввода для директив.
 * `MESSAGE(message)`: Отобразить сообщение в консоли проекта.
 * `DIRECTORY(create, path)`: Создать директорию внутри проекта.
 * `FILE_COPY(copy, path_to_copy_from, path_to_paste)`: Скопировать файл в указанное место в проекте.
-* `FILE_CREATE(create, path)`: Создать файл внутри проекта.
+* `FILE_CREATE(create, data)`: Создать файл внутри проекта.
 * `DESCRIPTION(description)`: Предоставить описание для конфигурации проекта.
 * `DEPENDENCYID[id1, id2, ...]`: Установить идентификаторы зависимостей проекта RainWorld.
 * `DEPENDENCYNAME[name1, name2, ...]`: Установить имена зависимостей проекта RainWorld.
