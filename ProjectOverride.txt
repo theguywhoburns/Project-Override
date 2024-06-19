@@ -1,78 +1,22 @@
-//comments will be ignored but the first parameter MUST be VERSION
-//also you can write them in lower case, but it's not recommended
+CONFIG_VERSION("0.0.1")
 
-//cfg version 0 = major .1 = minor
-CONFIG_VERSION("0.1")
-RW_DIR("path")
+MESSAGE(
+	"Hello my friend!\n\tNice to meet you!!!\n"
+	)
 
-//you can use INPUT(MSG_TO_DISPLAY) to make a input box when creating a project using this config
-//if no msg provided for
-//you can use DEFAULT(directive_name) for a default value(isnt supported by most of the directives)
-//if needed directive was not specified in the config file or it's value not specified(except for IF_INPUT) it will create a message box that will ask for that value, it WILL NOT error out
-//you can use BOOL_INPUT(msg_to_display) for a boolean INPUT(MSG_TO_DISPLAY) used by some directives
-//if the config is not valid, the program will show where the error in validation happens, then exit
-//all the errors will be parsed and handled before exiting the program
-//it will fully describe the error, error code, where it happend and if possible how to fix it
-//if the directive is not specified the program will automatically use input box
-//all the error codes and their explanations can be printed with --help-ex 
-
-/*
-	multi
-	line
-	comment
-	/*
-*//*wofjwo*///tesst
-
-ID("sklc")
-NAME("SklC Test Mod")//tewst
-SETPARAM()
-GIT()
-VERSION("0.0.1")
-HIDEVERSION(true)
-
-//display a message in the console
-MESSAGE("Hello World from RwConfig!")
-
-//if empty will ask for an input
-
-//Example of an array directive
-AUTHORS["sklc", "demiyanit"]
-
-//at BOOL_INPUT("msg_to_display")
-//if true the directory will be created
-//if false it will not
-//WARNING: DO NOT USE ABSOLUTE PATH, it is NOT supported!!!
-DIRECTORY(BOOL_INPUT("Create path?"), "path")
-//will not be created if the directory above doesnt exist
-DIRECTORY(true, "path/subpath")
-
-// BOOL_INPUT(msg_to_display) same as in DIRECTORY
-// will not be created if the path dir doesnt exist
-// BOOL_INPUT(msg_to_display) same as in DIRECTORY
-FILE_COPY(BOOL_INPUT("Copy file?"), "path_to_copy_from", "path_to_paste")
-
-// no need for explanation
-FILE_CREATE(true, "data")
-
-DESCRIPTION("test description for my config")
-//If empty will ask for a dependency untill you write exit
-DEPENDENCYID["testidab", "test.id.bab"]
-//same here
-DEPENDENCYNAME["test name", "test nameslollal"]
-//same here
-PRIORITIES["testidab"]
-//but not here, it will be ignored
-TAGS["Regions", "other"]
-//default true
-CHECKSUMOVERRIDE(false)
-
-// Set a default value for the directory directive
-SETDEFAULT[DIRECTORY, true, "path"]
-
-// Ask for a boolean input with a description message
-IF_INPUT("Do you want to create a subdirectory?", DIRECTORY(true, "path/subpath"))
-
-// Set a default value for the file_copy directive
-SETDEFAULT[FILE_COPY, true, "path_to_copy_from", "path_to_paste"]
-// Ask for a boolean input with a description message
-IF_INPUT("Do you want to copy a file?", FILE_COPY(true, "path_to_copy_from", "path_to_paste"))
+MESSAGE
+	[
+	"Message Tests:\n",
+	"------------------------------\n",
+	"Boolean Test:\n",
+	"\t",
+	true,
+	"\n\t",
+	false,
+	"\nSuccess!\n",
+	"Num Test:\n\t", 
+	251312, 
+	"\nSuccess\n", 
+	"------------------------------\n", 
+	"Test ended"
+	]

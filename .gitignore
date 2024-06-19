@@ -1,2 +1,5 @@
-/target
 tokens.txt
+asts.txt
+obj/
+bin/
+.vscode/
