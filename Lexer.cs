@@ -162,7 +162,7 @@ class Token {
 
 static class Lexer {
 	public static List<Token> Lex(String source) {
-		const string DELIMITERS = "^+-=!@$%&|~@(){}[]'\".,:;* \n\t\r /\\";
+		const string DELIMITERS = "^+-=!@$%&|~@(){}[]'\".,:;* \n\t\r /\\#";
 		List<Token> ret = new List<Token>();
 		int line = 1;
 		int col = 1;
