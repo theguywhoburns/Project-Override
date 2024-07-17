@@ -2,9 +2,9 @@ using System.Text;
 
 static class Args {
 	public static bool Debug = true;
-	public static String File = "ProjectOverride.txt";
-	public static String ProjectFolder = "./";
-	public const String VERSION = "0.0.1";
+	public static string File = "ProjectOverride.txt";
+	public static string ProjectFolder = "./";
+	public const string VERSION = "0.0.1";
 	public static void Parse(string[] args) {
 		if (args.Length > 0) {
 			args = args[1..];
@@ -51,7 +51,7 @@ static class Args {
 			} 
 			ProjectFolder = args[i + 1];
 			if(args[i + 1].StartsWith("\"") && !args[i + 1].EndsWith("\"")) {
-				String tmp = args[i + 1];
+				string tmp = args[i + 1];
 				int j = i + 2;
 				while (j < args.Length && !args[j].Contains("\"")) {
 					tmp += " " + args[j];

@@ -28,7 +28,57 @@ class AstNode {
 }
 
 static class AST {
-
+	public static dynamic ExecuteStatement(AstNode ast) {
+		dynamic[] args = new dynamic[ast.children.Count];
+		for(int i = 0; i < ast.children.Count; i++) {
+			switch(ast.children[i].type) {
+				case AstNode.Type.STRING:
+					args[i] = ast.children[i].value??"";
+					break;
+				case AstNode.Type.NUMBER:
+					args[i] = ast.children[i].value??0;
+					break;
+				case AstNode.Type.BOOLEAN:
+					args[i] = ast.children[i].value??false;
+					break;
+				case AstNode.Type.NULL:
+					ProjectOverride.errors.Add(new Error("RUNTIME COMPILER ERROR: Unexpected node type " + ast.type.ToString(), ast.line, ast.col));
+					break;
+				case AstNode.Type.STATEMENT:
+						args[i] = ExecuteStatement(ast.children[i]);
+					break;
+				default:
+					args[i] = ast.children[i].value??"";
+					break;
+			}
+			ProjectOverride.errors.Add(new Error("RUNTIME COMPILER ERROR: Unexpected node type " + ast.type.ToString(), ast.line, ast.col));
+		}
+		AstNode _ret = ast.value(args);
+		dynamic ret = "";
+		switch(_ret.type) {
+		case AstNode.Type.STRING:
+			ret = _ret.value??"";
+			break;
+		case AstNode.Type.NUMBER:
+			ret = _ret.value??0;
+			break;
+		case AstNode.Type.BOOLEAN:
+			ret = _ret.value??false;
+			break;	
+		case AstNode.Type.NULL:
+			ProjectOverride.errors.Add(new Error("RUNTIME COMPILER ERROR: Unexpected node type " + _ret.type.ToString(), _ret.line, _ret.col));
+			ProjectOverride.PrintErrors();
+			Environment.Exit(1);
+			break;
+		case AstNode.Type.STATEMENT:
+			ret = ExecuteStatement(_ret);
+			break;
+		default:
+			ret = _ret.value??"";
+			break;
+		}
+		return ret;
+	}
 	public static void Execute(List<AstNode> asts) {
 		foreach(AstNode ast in asts) {
 			if(ast.type != AstNode.Type.STATEMENT) {
@@ -51,7 +101,12 @@ static class AST {
 					case AstNode.Type.NULL:
 						ProjectOverride.errors.Add(new Error("RUNTIME COMPILER ERROR: Unexpected node type " + ast.type.ToString(), ast.line, ast.col));
 						break;
-					
+					case AstNode.Type.STATEMENT:
+						args[i] = ExecuteStatement(ast.children[i]);
+						break;
+					default:
+						args[i] = ast.children[i].value??"";
+						break;
 				}
 				ProjectOverride.errors.Add(new Error("RUNTIME COMPILER ERROR: Unexpected node type " + ast.type.ToString(), ast.line, ast.col));
 			}
@@ -135,7 +190,7 @@ static class AST {
 			cont = 1;
 			i++;
 		} else {
-			String expected;
+			string expected;
 			if(cont == 2) {
 				expected = "( or [";
 			} else if(cont == 1) {
@@ -160,13 +215,14 @@ static class AST {
 				i++;
 			}
 			return null;
-		}
-		if(tokens[i].type != Token.Type.Csquare && cont == 1) {
+		} else if(tokens[i].type != Token.Type.Csquare && cont == 1) {
 			ProjectOverride.errors.Add(new Error("Unexpected token, expected ]", tokens[i - 1].line, tokens[i - 1].col));
 			while(i < tokens.Count && tokens[i].type != Token.Type.Newline) {
 				i++;
 			}
 			return null;
+		} else {
+			i++;
 		}
 		if(args == null) {
 			return null;
@@ -219,12 +275,10 @@ static class AST {
 			SkipWhitespaceAndTab(tokens, ref i);
 			while(tokens[i].type != Token.Type.Comma && tokens[i].type != Token.Type.Cparen && tokens[i].type != Token.Type.Csquare) {
 				SkipWhitespaceAndTab(tokens, ref i);
-				if(tokens[i].type == Token.Type.Quote || tokens[i].type == Token.Type.DoubleQuote) {
-					AstNode? str = GetString(tokens, ref i);
-					if(str == null) {
-						return null;	
-					}
+				if(tokens[i].type == Token.Type.String) {
+					AstNode str = new AstNode(AstNode.Type.STRING, tokens[i].line, tokens[i].col, tokens[i].value);
 					args.Add(str);
+					i++;
 				} else if(tokens[i].type == Token.Type.Newline) {
 					if(tokens[i-1].type != Token.Type.Comma) {
 						
@@ -297,7 +351,7 @@ static class AST {
 		return ret;
 	}
 
-	private static AstNode ?GetString(List<Token> tokens, ref int i) {
+	private static AstNode ?Getstring(List<Token> tokens, ref int i) {
 		AstNode ret = new AstNode(AstNode.Type.STRING, 0, 0);
 		Token.Type QuoteT = tokens[i].type == Token.Type.DoubleQuote ? Token.Type.DoubleQuote : Token.Type.Quote;
 		i++;
@@ -319,7 +373,7 @@ static class AST {
 					str += "\\";	
 				} else if(tokens[i+1].type == Token.Type.Identifier) {
 					Token tok = tokens[i+1];
-					String tok_str = tok.ToString();
+					string tok_str = tok.ToString() ;
 					if(tok_str.ToCharArray()[0] == 'n') {
 						str += "\n";
 						if(tok_str.Length > 1) str += tok_str.Substring(1);
@@ -363,6 +417,7 @@ static class AST {
 			}
 		}
 		ret.value = str;
+		
 		i++;
 		return ret;
 	}

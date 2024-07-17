@@ -1,22 +1,5 @@
 CONFIG_VERSION("0.0.1")
 
-MESSAGE(
-	"Hello my friend!\n\tNice to meet you!!!\n"
-	)
+SET("Test variable lol", LINK("https://google.com"))
 
-MESSAGE
-	[
-	"Message Tests:\n",
-	"------------------------------\n",
-	"Boolean Test:\n",
-	"\t",
-	true,
-	"\n\t",
-	false,
-	"\nSuccess!\n",
-	"Num Test:\n\t", 
-	251312, 
-	"\nSuccess\n", 
-	"------------------------------\n", 
-	"Test ended"
-	]
+MESSAGE(GET("Test variable lol"))
