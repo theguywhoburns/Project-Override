@@ -1,7 +1,7 @@
 class AstNode {
 	public List<AstNode> children = new List<AstNode>();
-	public int line;
-	public int col;
+	public int line=0;
+	public int col = 0;
 	public enum Type {
 		STATEMENT = 0b0000000000000000,
 		STRING 		= 0b0000000000000001, 
@@ -31,27 +31,27 @@ static class AST {
 	public static dynamic ExecuteStatement(AstNode ast) {
 		dynamic[] args = new dynamic[ast.children.Count];
 		for(int i = 0; i < ast.children.Count; i++) {
-			switch(ast.children[i].type) {
+			switch (ast.children[i].type)
+			{
 				case AstNode.Type.STRING:
-					args[i] = ast.children[i].value??"";
+					args[i] = ast.children[i].value ?? "";
 					break;
 				case AstNode.Type.NUMBER:
-					args[i] = ast.children[i].value??0;
+					args[i] = ast.children[i].value ?? 0;
 					break;
 				case AstNode.Type.BOOLEAN:
-					args[i] = ast.children[i].value??false;
+					args[i] = ast.children[i].value ?? false;
 					break;
 				case AstNode.Type.NULL:
 					ProjectOverride.errors.Add(new Error("RUNTIME COMPILER ERROR: Unexpected node type " + ast.type.ToString(), ast.line, ast.col));
 					break;
 				case AstNode.Type.STATEMENT:
-						args[i] = ExecuteStatement(ast.children[i]);
+					args[i] = ExecuteStatement(ast.children[i]);
 					break;
 				default:
-					args[i] = ast.children[i].value??"";
+					args[i] = ast.children[i].value ?? "";
 					break;
 			}
-			ProjectOverride.errors.Add(new Error("RUNTIME COMPILER ERROR: Unexpected node type " + ast.type.ToString(), ast.line, ast.col));
 		}
 		AstNode _ret = ast.value(args);
 		dynamic ret = "";
@@ -108,7 +108,6 @@ static class AST {
 						args[i] = ast.children[i].value??"";
 						break;
 				}
-				ProjectOverride.errors.Add(new Error("RUNTIME COMPILER ERROR: Unexpected node type " + ast.type.ToString(), ast.line, ast.col));
 			}
 			if(ast.value == null) {
 				ProjectOverride.errors.Add(new Error("RUNTIME COMPILER ERROR: NULL statement", ast.line, ast.col));
@@ -348,77 +347,6 @@ static class AST {
 			ret = args[0];
 		}
 
-		return ret;
-	}
-
-	private static AstNode ?Getstring(List<Token> tokens, ref int i) {
-		AstNode ret = new AstNode(AstNode.Type.STRING, 0, 0);
-		Token.Type QuoteT = tokens[i].type == Token.Type.DoubleQuote ? Token.Type.DoubleQuote : Token.Type.Quote;
-		i++;
-		string str = "";
-		ret.line = tokens[i].line;
-		ret.col = tokens[i].col;
-		while(i < tokens.Count && tokens[i].type != QuoteT) {
-			if(tokens[i].type == Token.Type.Newline) {
-				ProjectOverride.errors.Add(new Error("Unterminated string", tokens[i].line, tokens[i].col));
-				return null;
-			}
-
-			if(tokens[i].type == Token.Type.BackSlash) {
-				if(tokens[i+1].type == Token.Type.Quote) {
-					str += "\'";
-				}else if (tokens[i+1].type == Token.Type.DoubleQuote) {
-					str += "\"";
-				} else if(tokens[i+1].type == Token.Type.BackSlash) {
-					str += "\\";	
-				} else if(tokens[i+1].type == Token.Type.Identifier) {
-					Token tok = tokens[i+1];
-					string tok_str = tok.ToString() ;
-					if(tok_str.ToCharArray()[0] == 'n') {
-						str += "\n";
-						if(tok_str.Length > 1) str += tok_str.Substring(1);
-						i+=2;
-					} else if(tok_str.ToCharArray()[0] == 't') {
-						str += "\t";
-						str += tok_str.Substring(1);
-						i+=2;
-					} else if(tok_str.ToCharArray()[0] == 'r') {
-						str += "\r";
-						if(tok_str.Length > 1) str += tok_str.Substring(1);
-						i+=2;
-					} else if(tok_str.ToCharArray()[0] == 'b') {
-						str += "\b";
-						if(tok_str.Length > 1) str += tok_str.Substring(1);
-						i+=2;
-					} else if(tok_str.ToCharArray()[0] == 'f') {
-						str += "\f";
-						if(tok_str.Length > 1) str += tok_str.Substring(1);
-						i+=2;
-					} else {
-						ProjectOverride.errors.Add(new Error("Unrecognised \\ " + tokens[i+1].ToString(), tokens[i+1].line, tokens[i+1].col));
-						while(i < tokens.Count && (tokens[i].type != QuoteT || tokens[i].type == Token.Type.BackSlash)) {
-							i++;
-						}
-						return null;
-					}
-					
-					continue;
-				} else {
-					ProjectOverride.errors.Add(new Error("Unrecognised \\ " + tokens[i+1].ToString(), tokens[i+1].line, tokens[i+1].col));
-					i+= 2;
-					return null;
-				}
-				i+= 2;
-			}
-			str += tokens[i].ToString();
-			i++;
-			if(tokens[i].type == QuoteT) {
-				break;
-			}
-		}
-		ret.value = str;
-		
-		i++;
 		return ret;
 	}
 
