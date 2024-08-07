@@ -122,6 +122,7 @@ class Token {
 			Type.EndMultiLineComment => "*/",
 			Type.EndOfFile => "EOF",
 			Type.Identifier or Type.Number => value,
+			Type.String => "\"" + value + "\"",
 			_ => "",
 		};
 	}

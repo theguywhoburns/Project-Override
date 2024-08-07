@@ -1,7 +1,7 @@
 class AstNode {
 	public List<AstNode> children = new List<AstNode>();
 	public int line=0;
-	public int col = 0;
+	public int col=0;
 	public enum Type {
 		STATEMENT = 0b0000000000000000,
 		STRING 		= 0b0000000000000001, 
@@ -24,6 +24,8 @@ class AstNode {
 	public AstNode(Type type, int line = 0, int col = 0, dynamic? value = null) {
 		this.type = type;
 		this.value = value;
+		this.line = line;
+		this.col = col;
 	}
 }
 
@@ -284,7 +286,7 @@ static class AST {
 						while(tokens[i].type == Token.Type.Newline || tokens[i].type == Token.Type.Whitespace || tokens[i].type == Token.Type.Tab) {
 							i++;
 						}
-						if(tokens[i].type == Token.Type.Identifier) {
+						if(tokens[i].type != Token.Type.Identifier) {
 							ProjectOverride.errors.Add(new Error("Unexpected newline", tokens[i].line, tokens[i].col));
 							return null;
 						}

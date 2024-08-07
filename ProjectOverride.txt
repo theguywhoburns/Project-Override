@@ -1,5 +1,5 @@
 CONFIG_VERSION("0.0.1")
 
-SET("Test variable lol", LINK("https://google.com"))
+SET("Test variable lol", LINK("https://raw.githubusercontent.com/Demiyanit/Project-Override/master/__ProjectOverride.txt"))
 
 MESSAGE(GET("Test variable lol"))
