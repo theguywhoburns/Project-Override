@@ -1,6 +1,5 @@
-tokens.txt
-asts.txt
-obj/
-bin/
-.vscode/
 .vs/
+.vscode/
+build/
+bin/
+ProjectOverride.txt.lexer_out
