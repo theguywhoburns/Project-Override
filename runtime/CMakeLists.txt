@@ -1,0 +1,34 @@
+cmake_minimum_required(VERSION 3.22)
+project(ProjectOverrideRuntime
+	VERSION 0.0.1
+	LANGUAGES CXX C # C is currently unused, C++ 23
+)
+
+if(MSVC)
+	add_compile_definitions(/D_CRT_SECURE_NO_WARNINGS)
+	add_compile_definitions(/DPROJECT_OVERRIDE_VERSION_MAJOR=${PROJECT_OVERRIDE_MAJOR})
+	add_compile_definitions(/DPROJECT_OVERRIDE_VERSION_MINOR=${PROJECT_OVERRIDE_MINOR})
+	add_compile_definitions(/DPROJECT_OVERRIDE_VERSION_PATCH=${PROJECT_OVERRIDE_PATCH})
+	add_compile_options(/fvisibility=default)
+else()
+	add_compile_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_MAJOR=${PROJECT_OVERRIDE_MAJOR})
+	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_MINOR=${PROJECT_OVERRIDE_MINOR})
+	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_PATCH=${PROJECT_OVERRIDE_PATCH})
+	add_compile_options(-fvisibility=default)
+endif()
+
+#set output directory of the exe to the bin folder
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
+file(
+	GLOB_RECURSE SRCS CONFIGURE_DEPENDS
+	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_library(ProjectOverrideRuntime MODULE ${SRCS})
+target_include_directories(ProjectOverrideRuntime PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_compile_features(ProjectOverrideRuntime PRIVATE cxx_std_23)

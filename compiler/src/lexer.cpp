@@ -29,6 +29,7 @@ Token TokenStream::peek() {
   return this->last;
 }
 
+#if _DEBUG
 std::string TokenStream::token_type_to_string(Token::Type type) {
   switch (type) {
   case Token::Type::TOKEN_EOF:          return "EOF";
@@ -46,6 +47,7 @@ std::string TokenStream::token_type_to_string(Token::Type type) {
   default: return "UNKNOWN";
   }
 }
+#endif
 
 Token TokenStream::lex_new() {
   while (file_index < file_source.size() && ( 

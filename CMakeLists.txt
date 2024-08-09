@@ -1,37 +1,6 @@
-cmake_minimum_required(VERSION 3.22)
-project(PROJECT_OVERRIDE
-	VERSION 0.0.1
-	LANGUAGES CXX C # C is currently unused, C++ 23
-)
-
 set(PROJECT_OVERRIDE_MAJOR 0)
 set(PROJECT_OVERRIDE_MINOR 0)
 set(PROJECT_OVERRIDE_PATCH 1)
 
-if(MSVC)
-	add_compile_definitions(/D_CRT_SECURE_NO_WARNINGS)
-	add_compile_definitions(/DPROJECT_OVERRIDE_VERSION_MAJOR=${PROJECT_OVERRIDE_MAJOR})
-	add_compile_definitions(/DPROJECT_OVERRIDE_VERSION_MINOR=${PROJECT_OVERRIDE_MINOR})
-	add_compile_definitions(/DPROJECT_OVERRIDE_VERSION_PATCH=${PROJECT_OVERRIDE_PATCH})
-	
-else()
-	add_compile_definitions(-D_CRT_SECURE_NO_WARNINGS)
-	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_MAJOR=${PROJECT_OVERRIDE_MAJOR})
-	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_MINOR=${PROJECT_OVERRIDE_MINOR})
-	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_PATCH=${PROJECT_OVERRIDE_PATCH})
-endif()
-
-#set output directory of the exe to the bin folder
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-
-file(
-	GLOB_RECURSE SRCS CONFIGURE_DEPENDS
-	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
-)
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-add_executable(PROJECT_OVERRIDE ${SRCS})
-target_include_directories(PROJECT_OVERRIDE PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_compile_features(PROJECT_OVERRIDE PRIVATE cxx_std_23)
+add_subdirectory(compiler)
+add_subdirectory(runtime)

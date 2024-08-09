@@ -1,7 +1,6 @@
 #include <Ast.hpp>
 /*
-
-        TOKEN_OPAREN,
+    TOKEN_OPAREN,
     TOKEN_CPAREN,
     TOKEN_OSQUARE,
     TOKEN_CSQUARE,

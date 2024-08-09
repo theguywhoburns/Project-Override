@@ -3,6 +3,11 @@
 #include <Ast.hpp>
 int main(int argc, char** argv) {
 	try {
+		Utils::DynamicLibrary lib("bin/ProjectOverrideRuntime.dll");
+		auto fun = lib.get<int>("Test");
+		int ret = fun();
+		std::cout << ret << std::endl;
+		return 0;
 		Args::Parse(argc, argv);
 		if(Args::help) {
 			std::cout << "Help" << std::endl;
@@ -23,5 +28,6 @@ int main(int argc, char** argv) {
 		Utils::Ascii::BOLD_HIGH_INTENSITY_RED + "error: " + 
 		Utils::Ascii::RESET + e->what() << std::endl;
 	}
+	
 	return 0;
 }

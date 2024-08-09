@@ -20,15 +20,23 @@
 #include <type_traits>
 #include <concepts>
 #include <numeric>
+#include <variant>
+#include <stdexcept>
+#include <memory>
 // This one is for reduced memory usage
 #include <string_view>
 
 // basically useless but i'll keep it just in case
 #include <cassert>
 #include <cstdint>
+#include <cstring>
+
 // most of the starting code is the same as in PROJECT_OVERRIDE
 namespace Utils { 
-	// Custom character functions, fuck off if you don't like them
+	class Library {
+    
+  };
+  // Custom character functions, fuck off if you don't like them
   inline bool IsSpace (char c) { return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f'; }
   inline bool IsNumber(char c) { return c >= '0' && c <= '9'; }
   inline bool IsLetter(char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
@@ -41,6 +49,15 @@ namespace Utils {
   #define MACRO_UNWRAP(x) x
   #define MACRO_STR(x) MACRO_UNWRAP(MACRO_STR_(x))
   #define PROJECT_OVERRIDE_VERSION_STR MACRO_STR(PROJECT_OVERRIDE_VERSION_MAJOR) "." MACRO_STR(PROJECT_OVERRIDE_VERSION_MINOR) "." MACRO_STR(PROJECT_OVERRIDE_VERSION_PATCH)
+  class DynamicLibrary {
+  public:
+    explicit DynamicLibrary(const std::string& path);
+    template<typename Ret, typename... Args>
+    std::function<Ret(Args...)> get(const std::string& function_name) {return reinterpret_cast<Ret(*)(Args...)>(_get(function_name));}
+  private:
+    void* _get(const std::string& function_name);
+    void* _handle;
+  };
   namespace Ascii {
     ///@author https://gist.github.com/RabaDabaDoba/145049536f815903c79944599c6f952a
     
