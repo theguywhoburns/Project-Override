@@ -4,9 +4,11 @@
 int main(int argc, char** argv) {
 	try {
 		Utils::DynamicLibrary lib("bin/ProjectOverrideRuntime.dll");
-		auto fun = lib.get<int>("Test");
-		int ret = fun();
-		std::cout << ret << std::endl;
+		auto fun = lib.get<std::unordered_map<std::string, std::function<std::string(std::vector<std::string>)>>>("GetAllExports");
+		auto ret = fun();
+		for(auto& [k, v] : ret) {
+			std::cout << k << " " << v({""}) << std::endl;
+		}
 		return 0;
 		Args::Parse(argc, argv);
 		if(Args::help) {

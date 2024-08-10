@@ -9,8 +9,8 @@
 namespace Utils {
 	DynamicLibrary::DynamicLibrary(const std::string& path) {
 	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-		_handle = LoadLibrary(path.c_str());
-	#elif defined(unix) || defined(__unix__) || defined(__unix)
+		_handle = reinterpret_cast<void*>(LoadLibraryA(path.c_str()));
+		#elif defined(unix) || defined(__unix__) || defined(__unix)
 		_handle = dlopen(path.c_str(), RTLD_NOW);
 	#endif
 

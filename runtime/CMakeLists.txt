@@ -9,13 +9,11 @@ if(MSVC)
 	add_compile_definitions(/DPROJECT_OVERRIDE_VERSION_MAJOR=${PROJECT_OVERRIDE_MAJOR})
 	add_compile_definitions(/DPROJECT_OVERRIDE_VERSION_MINOR=${PROJECT_OVERRIDE_MINOR})
 	add_compile_definitions(/DPROJECT_OVERRIDE_VERSION_PATCH=${PROJECT_OVERRIDE_PATCH})
-	add_compile_options(/fvisibility=default)
 else()
 	add_compile_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_MAJOR=${PROJECT_OVERRIDE_MAJOR})
 	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_MINOR=${PROJECT_OVERRIDE_MINOR})
 	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_PATCH=${PROJECT_OVERRIDE_PATCH})
-	add_compile_options(-fvisibility=default)
 endif()
 
 #set output directory of the exe to the bin folder
@@ -28,6 +26,7 @@ file(
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 
 add_library(ProjectOverrideRuntime MODULE ${SRCS})
 target_include_directories(ProjectOverrideRuntime PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
