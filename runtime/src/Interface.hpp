@@ -2,4 +2,4 @@
 
 #include <Utils.hpp>
 
-PROV_API std::unordered_map<std::string, std::function<std::string(std::vector<std::string>)>> GetAllExports();
+std::unordered_map<std::string, std::function<std::string(std::vector<std::string>)>> PROV_API GetAllExports();

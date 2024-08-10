@@ -2,4 +2,4 @@
 
 #include <Utils.hpp>
 
-PROV_API std::string Test(std::vector<std::string> args);
+std::string PROV_API Test(std::vector<std::string> args);

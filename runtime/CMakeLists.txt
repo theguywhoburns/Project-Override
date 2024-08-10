@@ -28,6 +28,6 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-add_library(ProjectOverrideRuntime MODULE ${SRCS})
+add_library(ProjectOverrideRuntime SHARED ${SRCS})
 target_include_directories(ProjectOverrideRuntime PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(ProjectOverrideRuntime PRIVATE cxx_std_23)
