@@ -16,9 +16,6 @@ else()
 	add_compile_definitions(-DPROJECT_OVERRIDE_VERSION_PATCH=${PROJECT_OVERRIDE_PATCH})
 endif()
 
-#set output directory of the exe to the bin folder
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-
 file(
 	GLOB_RECURSE SRCS CONFIGURE_DEPENDS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp

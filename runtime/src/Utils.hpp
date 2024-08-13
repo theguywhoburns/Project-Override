@@ -5,4 +5,9 @@
 #include <unordered_map>
 #include <string>
 #include <functional>
-#define PROV_API __declspec(dllexport) __stdcall
+
+
+
+
+
+#define PROV_API __attribute__((visibility("default")))

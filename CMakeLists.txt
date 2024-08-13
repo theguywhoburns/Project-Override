@@ -2,5 +2,16 @@ set(PROJECT_OVERRIDE_MAJOR 0)
 set(PROJECT_OVERRIDE_MINOR 0)
 set(PROJECT_OVERRIDE_PATCH 1)
 
+
+
+
+
+
+
+
+
+
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 add_subdirectory(compiler)
 add_subdirectory(runtime)

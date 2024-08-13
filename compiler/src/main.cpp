@@ -3,7 +3,7 @@
 #include <Ast.hpp>
 int main(int argc, char** argv) {
 	try {
-		Utils::DynamicLibrary lib("bin/ProjectOverrideRuntime.dll");
+		Utils::DynamicLibrary lib("bin/libProjectOverrideRuntime.so");
 		auto fun = lib.get<std::unordered_map<std::string, std::function<std::string(std::vector<std::string>)>>>("GetAllExports");
 		auto ret = fun();
 		for(auto& [k, v] : ret) {
